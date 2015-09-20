@@ -1,0 +1,7 @@
+*.pyc
+*.db
+mysql2slite.sh
+pymaple.sublime-project
+pymaple.sublime-workspace
+mcdbdump.sql
+.DS_Store
