@@ -177,20 +177,33 @@ class Keymap(BaseModel):
 
     @classmethod
     def for_character(cls, character):
-        keymap = [
-            {x.key: (x.type, x.action)}
+        keymap = {
+            x.key: (x.type, x.action)
             for x in (
-                cls.select(cls.type, cls.action)
+                cls.select(cls.key, cls.type, cls.action)
                 .where(cls.character == character)
             )
-        ]
+        }
         for key in xrange(90):
-            if key in settings.DEFAULT_KEYMAP:
-                yield settings.DEFAULT_KEYMAP[key]
-            elif key in keymap:
+            if key in keymap:
                 yield keymap[key]
             else:
                 yield (0, 0)
+
+    @classmethod
+    def handle_changes(cls, changes, character):
+        inserts, deletes = [], []
+        for k, t, a in changes:
+            if t != 0:
+                inserts.append(
+                    {'key': k, 'type': t, 'action': a, 'character': character}
+                )
+            else:
+                deletes.append(k)
+        cls.insert_many(inserts).execute()
+        cls.delete().where(
+            (cls.character == character) & (cls.key << deletes)
+        ).execute()
 
     @classmethod
     def create_default(cls, character):
