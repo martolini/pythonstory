@@ -11,5 +11,12 @@ class ChannelProtocol(MapleProtocol):
         super(ChannelProtocol, self).__init__(*args, **kwargs)
 
     def send_map(self, *args, **kwargs):
-        for client in mapmodels.Map.get(id=self.character.map):
-            pass  # Send
+        print 'Should send to map'
+
+    def connectionLost(self, reason):
+        self.character.save()
+        mapmodels.Map.get(
+                          mapid=self.character.map,
+                          channel=self.factory.key
+                          ).remove_client(self)
+        return super(ChannelProtocol, self).connectionLost(reason)

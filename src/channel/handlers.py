@@ -1,9 +1,11 @@
 from . import packets as channelpackets
+from .map import models as mapmodels
 
 
 def load_player(packet, client):
     char_id = packet.read_int()
     character = client.factory.world_factory.get_character(char_id)
+
     character.channel = client.factory.key
     client.character = character
 
@@ -16,3 +18,4 @@ def load_player(packet, client):
     # client.send(channelpackets.load_family(character)) NOT IMPLEMENTED
     # TODO NOTES
     # TODO PARTY
+    mapmodels.Map.get(character.map, client.factory.key).add_client(client)

@@ -1,6 +1,7 @@
 from twisted.internet import protocol, task
 import struct
 from . import decoder, packetreader, packets
+from threading import RLock
 
 
 class MapleProtocol(protocol.Protocol, object):
@@ -8,13 +9,15 @@ class MapleProtocol(protocol.Protocol, object):
 
     def __init__(self):
         self.reader = packetreader.PacketReader()
+        self.lock = RLock()
         super(MapleProtocol, self).__init__()
 
     def send(self, packet):
-        packet = self.decoder.encode(packet)
-        self.transport.write(
-            struct.pack('<%dB' % len(packet), *packet)
-        )
+        with self.lock:
+            packet = self.decoder.encode(packet)
+            self.transport.write(
+                struct.pack('<%dB' % len(packet), *packet)
+            )
 
     def dataReceived(self, data):
         header = struct.unpack('!i', data[:4])[0]
@@ -22,7 +25,8 @@ class MapleProtocol(protocol.Protocol, object):
             print "Corrupted header or IVs"
             self.transport.loseConnection()
         body = data[4:]
-        packet = self.reader.process(self.decoder.decode(body))
+        with self.lock:
+            packet = self.reader.process(self.decoder.decode(body))
         self.processor.handle_packet(packet, self)
 
     def connectionMade(self):

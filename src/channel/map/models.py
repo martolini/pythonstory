@@ -1,51 +1,48 @@
-from src.common.staticmodels import MapData, MapSeats, MapPortals
+from src.common.staticmodels import MapData, MapSeats, MapPortals, MapLife
 from src.common.helperclasses import Point, Rect
-
-
-class PortalDoesNotExist(Exception):
-    pass
-
-
-class SpawnInfo(object):
-    def __init__(self):
-        self.id = 0
-        self.time = None
-        self.spawned = False
-        self.faces_left = False
-        self.pos = Point(-1, -1)
-
-
-class FootholdInfo(object):
-    def __init__(self):
-        self.forbid_jump_down = True
-        self.left_edge = False
-        self.right_edge = False
-        self.id = 0
-        self.drag_force = 0
+from . import packets as mappackets
 
 
 class Map(object):
+    cache = {c: {} for c in xrange(5)}
 
     def __init__(self, mapid):
+        self.objid = 1
         self.id = mapid
         self.seats = {}
-        self.characters = set()
+        self.clients = set()
         self.portals = {}
+        self.npc = {}
+        self.mob = {}
+        self.reactor = {}
 
     @classmethod
-    def get(self, mapid):
+    def get(cls, mapid, channel):
+        if mapid in cls.cache[channel]:
+            return cls.cache[channel][mapid]
+
         mmap = Map(mapid)
         mmap.load_data(MapData.get(MapData.mapid == mmap.id))
         mmap.load_seats(MapSeats.select().where(MapSeats.mapid == mmap.id))
-        for portal in MapPortals.select().where(MapPortals.mapid == mmap.id):
+        for portal in MapPortals.select(
+                        ).where(MapPortals.mapid == mmap.id):
             mmap.portals[portal.id] = portal
+        mmap.load_life(MapLife.select().where(MapLife.mapid == mmap.id))
+        cls.cache[channel][mmap.id] = mmap
         return mmap
+
+    def add_client(self, client):
+        self.clients.add(client)
+        self.show_objects(client)
+
+    def remove_client(self, client):
+        self.clients.remove(client)
 
     def get_portal_from_string(self, string):
         for k, v in self.portals.iteritems():
             if v.label == string:
                 return self.portals[k]
-        raise PortalDoesNotExist("{} does not exist in map {}".format(
+        raise Exception("{} does not exist in map {}".format(
                                  string, self.id))
 
     def load_data(self, data):
@@ -71,3 +68,24 @@ class Map(object):
     def load_seats(self, seats):
         for seat in seats:
             self.seats[seat.seatid] = Point(seat.x_pos, seat.y_pos)
+
+    def load_life(self, data):
+        for life in data:
+            storage = getattr(self, life.life_type, None)
+            if storage is not None:
+                storage[life.id] = life
+
+    def send(self, packet):
+        for client in self.clients:
+            client.send(packet)
+
+    def spawn_mobs(self):
+        for mob in self.mob.values():
+            self.send(mappackets.spawn_mob(mob))
+
+    def show_objects(self, client):
+        c = 200
+        for npc in self.npc.values():
+            npc.id = c
+            client.send(mappackets.spawn_npc(npc))
+            c += 1

@@ -53,5 +53,9 @@ class PacketBuilder:
         )
         return self
 
+    def skip(self, num):
+        self.arr.extend([0] * num)
+        return self
+
     def get_packet(self):
         return self.arr

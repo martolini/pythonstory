@@ -1,5 +1,3 @@
-
-
 def parse_movement(packet):
     foothold = 0
     stance = 0

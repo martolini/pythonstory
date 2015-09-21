@@ -18,16 +18,28 @@ def change_map(packet, client):
     packet.read_byte()
     packet.read_int()  # Target map, use for something?
     startwp = packet.read_maplestring()
-    currentmap = mapmodels.Map.get(mapid=client.character.map)
+    currentmap = mapmodels.Map.get(
+        mapid=client.character.map,
+        channel=client.factory.key)
     portal = currentmap.get_portal_from_string(startwp)
     packet.read_byte()
     packet.read_short() > 0  # moople wheel
-    nextmap = mapmodels.Map.get(mapid=portal.destination)
+    nextmap = mapmodels.Map.get(
+        mapid=portal.destination,
+        channel=client.factory.key
+    )
     nextportal = nextmap.get_portal_from_string(portal.destination_label)
-    client.send(
-            playerpackets.change_map(nextmap, nextportal.id, client.character)
-            )
     client.character.map = nextmap.id
+    currentmap.remove_client(client)
+    client.send(
+        playerpackets.change_map(
+            nextmap,
+            nextportal.id,
+            client.character,
+            client.factory.key
+        )
+    )
+    nextmap.add_client(client)
 
 
 def change_keymap(packet, client):
@@ -39,5 +51,4 @@ def change_keymap(packet, client):
         ktype = packet.read_byte()
         action = packet.read_int()
         changes.append((key, ktype, action))
-    print changes
     Keymap.handle_changes(changes, client.character)

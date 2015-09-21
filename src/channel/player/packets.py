@@ -6,9 +6,9 @@ import time
 
 
 @packet(sendopcodes.SET_FIELD)
-def change_map(builder, destination, spawnpoint, character):
+def change_map(builder, destination, spawnpoint, character, channel):
     (builder
-     .write_int(character.channel - 1)
+     .write_int(channel - 1)
      .write_int(0)
      .write(0)
      .write_int(destination.id)

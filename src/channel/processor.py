@@ -16,5 +16,5 @@ class ChannelPacketProcessor(processor.BasePacketProcessor):
         recvopcodes.PLAYER_LOAD: channelhandlers.load_player,
         recvopcodes.MOVE_PLAYER: playerhandlers.move_player,
         recvopcodes.CHANGE_MAP: playerhandlers.change_map,
-        recvopcodes.CHANGE_KEYMAP: playerhandlers.change_keymap
+        recvopcodes.CHANGE_KEYMAP: playerhandlers.change_keymap,
     }
