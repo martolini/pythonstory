@@ -1,5 +1,5 @@
 import argparse
-import src
+import pythonstory
 from peewee import IntegrityError
 
 
@@ -15,14 +15,15 @@ class Manager(object):
                 func(*args.args)
             else:
                 func()
-        except AttributeError:
+        except AttributeError as e:
+            print e
             print "Don't know that function."
         except TypeError, e:
             print e
 
     def syncdb(self):
-        db = src.common.settings.DATABASES['default']
-        models = src.common.models.BaseModel.__subclasses__()
+        db = pythonstory.common.settings.DATABASES['default']
+        models = pythonstory.common.models.BaseModel.__subclasses__()
         for model in models:
             print 'Creating table {} for model {}'.format(
                     model._meta.db_table,
@@ -37,17 +38,21 @@ class Manager(object):
         self.createaccount('admin', 'admin')
 
     def flush(self):
-        for model in src.common.models.BaseModel.__subclasses__():
+        for model in pythonstory.common.models.BaseModel.__subclasses__():
             print "Deleting all {}s".format(model.__name__)
             model.delete().execute()
 
     def createaccount(self, name, password):
-        from src.world.models import Account
+        from pythonstory.world.models import Account
         try:
             Account.create(name=name, password=password)
             print 'Successfully created account {}'.format(name)
         except IntegrityError as e:
             print e
+
+    def runserver(self):
+        import main
+        main.runserver()
 
 
 if __name__ == '__main__':

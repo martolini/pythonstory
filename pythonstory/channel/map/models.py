@@ -1,13 +1,17 @@
-from src.common.staticmodels import MapData, MapSeats, MapPortals, MapLife
-from src.common.helperclasses import Point, Rect
+from pythonstory.common.staticmodels import (
+                        MapData, MapSeats, MapPortals, MapLife
+                        )
+from pythonstory.common.helperclasses import Point, Rect
 from . import packets as mappackets
+import pythonstory.channel.npc.packets as npcpackets
 
 
 class Map(object):
     cache = {c: {} for c in xrange(5)}
 
     def __init__(self, mapid):
-        self.objid = 1
+        self.npcid = 200
+        self.mobid = 500
         self.id = mapid
         self.seats = {}
         self.clients = set()
@@ -34,6 +38,7 @@ class Map(object):
     def add_client(self, client):
         self.clients.add(client)
         self.show_objects(client)
+        self.spawn_mobs(client)
 
     def remove_client(self, client):
         self.clients.remove(client)
@@ -71,7 +76,15 @@ class Map(object):
 
     def load_life(self, data):
         for life in data:
-            storage = getattr(self, life.life_type, None)
+            storage = None
+            if life.life_type == 'mob':
+                storage = self.mob
+                life.id = self.mobid
+                self.mobid += 1
+            elif life.life_type == 'npc':
+                self.npcid += 1
+                storage = self.npc
+                life.id = self.npcid
             if storage is not None:
                 storage[life.id] = life
 
@@ -79,13 +92,12 @@ class Map(object):
         for client in self.clients:
             client.send(packet)
 
-    def spawn_mobs(self):
+    def spawn_mobs(self, client):
         for mob in self.mob.values():
-            self.send(mappackets.spawn_mob(mob))
+            client.send(mappackets.spawn_mob(mob))
+            client.send(mappackets.control_mob(mob))
 
     def show_objects(self, client):
-        c = 200
         for npc in self.npc.values():
-            npc.id = c
-            client.send(mappackets.spawn_npc(npc))
-            c += 1
+            client.send(npcpackets.spawn_npc(npc))
+            client.send(npcpackets.control_npc(npc))

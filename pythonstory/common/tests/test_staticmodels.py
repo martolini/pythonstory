@@ -1,6 +1,6 @@
 import unittest
-from src.common.staticmodels import *
-from src.common import enums
+from pythonstory.common.staticmodels import *
+from pythonstory.common import enums
 
 
 class StaticModelTest(unittest.TestCase):

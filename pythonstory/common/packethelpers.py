@@ -39,7 +39,7 @@ def add_char_stats(builder, character):
      .write_short(character.fame)
      .write_int(character.gachaexp)
      .write_int(character.map)
-     .write(0)  # Spawnpoint
+     .write(character.spawn_point)
      .write_int(0)
      )
     return

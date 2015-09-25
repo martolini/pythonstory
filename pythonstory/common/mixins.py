@@ -1,4 +1,4 @@
-from src.channel.models import Character
+from pythonstory.channel.models import Character
 
 
 class CharacterCacheMixin(object):

@@ -1,9 +1,10 @@
-from src.world import factory as worldfactory, models as worldmodels
-from src.channel import factory as channelfactory
-from src.common import settings
+from pythonstory.world import factory as worldfactory, models as worldmodels
+from pythonstory.channel import factory as channelfactory
+from pythonstory.common import settings
 from twisted.internet import reactor
 
-if __name__ == '__main__':
+
+def runserver():
     worlds = [worldmodels.World(i, **w) for i, w in enumerate(settings.WORLDS)]
     worldfac = worldfactory.WorldFactory(worlds=worlds)
     for world in worlds:
@@ -19,3 +20,6 @@ if __name__ == '__main__':
 
     reactor.listenTCP(8484, worldfac)
     reactor.run()
+
+if __name__ == '__main__':
+    runserver()

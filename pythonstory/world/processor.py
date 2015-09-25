@@ -5,7 +5,7 @@ from . import handlers as worldhandlers
 
 class WorldPacketProcessor(processor.BasePacketProcessor):
     ignored_opcodes = (
-                       recvopcodes.WTF_STARTUP_SHIT,
+                       recvopcodes.CLIENT_STARTED,
                        recvopcodes.CLIENT_START_ERROR,
                        recvopcodes.PLAYER_DC,
                        recvopcodes.PLAYER_UPDATE

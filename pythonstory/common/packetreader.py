@@ -37,3 +37,7 @@ class PacketReader(object):
         struct.unpack_from('<%sB' % num, self.data, self.pos)
         self.pos += num
         return None
+
+    @property
+    def bytes_available(self):
+        return len(self.data) - self.pos

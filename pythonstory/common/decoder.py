@@ -2,6 +2,7 @@ import random
 import struct
 from Crypto.Cipher import AES
 from . import bitutils
+from threading import Lock
 
 
 aeskey = [
@@ -42,6 +43,8 @@ def AESencrypt(data):
 
 class Decoder:
     def __init__(self):
+        self.counter = 0
+        self.lock = Lock()
         self.send = [82, 48, 120, random.randint(1, 122)]
         self.receive = [70, 114, 122, random.randint(1, 122)]
         self.receive_mapleversion = 83
@@ -56,6 +59,7 @@ class Decoder:
         )
 
     def encode(self, data):
+        self.lock.acquire()
         header = self.get_packet_header(len(data))
         # Maple custom encryption
         for j in xrange(0, 6):
@@ -87,6 +91,7 @@ class Decoder:
 
         data = self.maple_aes(data, self.send)
         self.encodeUpdate()
+        self.lock.release()
         return header + data
 
     def maple_aes(self, data, iv):
@@ -107,6 +112,7 @@ class Decoder:
         return data
 
     def decode(self, data):
+        self.lock.acquire()
         data = list(struct.unpack('!%sB' % len(data), data))
         data = self.maple_aes(data, self.receive)
         self.decodeUpdate()
@@ -141,6 +147,7 @@ class Decoder:
                     cur = bitutils.roll_right(cur, 4)
                     data[i] = cur
                     data_length -= 1
+        self.lock.release()
         return data
 
     def encodeUpdate(self):
@@ -202,6 +209,11 @@ class Decoder:
             (bitutils.unsigned_right_shift(xoredIv, 8) & 0xFF),
             xoredIv & 0xFF
         ]
+
+    def get_packet_length(self, headerint):
+        packetlength = (headerint >> 16) ^ (headerint & 0xFFFF)
+        packetlength = ((packetlength << 8) & 0xFF00) | ((packetlength >> 8) & 0xFF)
+        return packetlength
 
     def check_header(self, header):
         header = (

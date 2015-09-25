@@ -1,5 +1,6 @@
 from ..common import enums, packethelpers as commonhelpers, gamelogicutils
 from .models import Item
+from pythonstory.channel.quest.models import Quest
 
 
 def add_char_info(builder, character):
@@ -15,7 +16,7 @@ def add_char_info(builder, character):
      )
     add_inventor_info(builder, character)
     add_skill_info(builder, character)
-    add_quest_info(builder, character)
+    Quest.connect_data(builder, character)
     add_minigame_info(builder, character)
     add_ring_info(builder, character)
     add_teleport_info(builder, character)
@@ -130,14 +131,6 @@ def add_skill_info(builder, character):
      .write_short(0)  # Size of skills
      .write_short(0)  # Cooldown size
      )
-
-
-def add_quest_info(builder, character):
-    (builder
-     .write_short(0)  # N OF STARTED QUESTS
-     .write_short(0)  # N OF COMPLETED QUESTS
-     )
-    return
 
 
 def add_minigame_info(builder, character):

@@ -695,14 +695,14 @@ class QuestAreaData(BaseModel):
 class QuestData(BaseModel):
     fame = IntegerField()
     flags = TextField()
-    max_level = UnknownField()  # tinyint(3)
-    min_level = UnknownField()  # tinyint(3)
+    max_level = IntegerField()
+    min_level = IntegerField()
     next_quest = IntegerField()
     pet_closeness = IntegerField()
-    quest_area = UnknownField()  # tinyint(3)
+    quest_area = IntegerField()
     questid = PrimaryKeyField()
     repeat_wait = IntegerField()
-    taming_mob_level = UnknownField()  # tinyint(3)
+    taming_mob_level = IntegerField()
     time_limit = IntegerField()
 
     class Meta:

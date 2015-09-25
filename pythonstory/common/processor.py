@@ -6,6 +6,7 @@ class BasePacketProcessor(object):
 
     handlers = {}  # {OPCODE: function}
     ignored_opcodes = set()
+    counter = 0
 
     @classmethod
     def handle_packet(cls, packet, client):
@@ -19,5 +20,5 @@ class BasePacketProcessor(object):
         if packet.opcode not in cls.ignored_opcodes:
             print '{} Could not handle opcode {}'.format(
                                         cls.__name__,
-                                        packet.opcode
+                                        hex(packet.opcode)
             )

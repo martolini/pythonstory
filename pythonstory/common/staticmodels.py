@@ -197,3 +197,20 @@ class MapContinentData(StaticModel):
     class Meta:
         db_table = 'map_continent_data'
         primary_key = CompositeKey('continent', 'map_cluster')
+
+
+class QuestData(StaticModel):
+    fame = IntegerField()
+    flags = TextField()
+    max_level = IntegerField()
+    min_level = IntegerField()
+    next_quest = IntegerField()
+    pet_closeness = IntegerField()
+    quest_area = IntegerField()
+    questid = PrimaryKeyField()
+    repeat_wait = IntegerField()
+    taming_mob_level = IntegerField()
+    time_limit = IntegerField()
+
+    class Meta:
+        db_table = 'quest_data'

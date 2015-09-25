@@ -1,17 +1,17 @@
-from src.common.decorators import packet
-from src.common import sendopcodes
-from src.common.packethelpers import maple_time
+from pythonstory.common.decorators import packet
+from pythonstory.common import sendopcodes
+from pythonstory.common.packethelpers import maple_time
 
 import time
 
 
 @packet(sendopcodes.SET_FIELD)
-def change_map(builder, destination, spawnpoint, character, channel):
+def change_map(builder, destinationid, character, channel, spawnpoint=0):
     (builder
      .write_int(channel - 1)
      .write_int(0)
      .write(0)
-     .write_int(destination.id)
+     .write_int(destinationid)
      .write(spawnpoint)
      .write_short(character.hp)
      .write(0)

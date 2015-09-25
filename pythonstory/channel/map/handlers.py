@@ -41,5 +41,6 @@ def parse_movement(packet):
             packet.skip(3)
         else:
             print 'Unknown movement type {}'.format(mtype)
+            break
 
     return x, y, foothold, stance
