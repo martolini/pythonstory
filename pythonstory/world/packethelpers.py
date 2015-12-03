@@ -7,7 +7,7 @@ def add_character_entry(builder, character, viewall=False, mega=False):
 
     (builder
      .write(character.gender)
-     .write(character.skin_color)
+     .write(character.skin)
      .write_int(character.face)
      .write(not mega)
      .write_int(character.hair)

@@ -6,10 +6,9 @@ import re
 from ..common.models import BaseModel
 from ..world.models import Account
 from ..common import enums, gamelogicutils, staticmodels, settings
-from .map.mixins import MovableMixin
 
 
-class Character(MovableMixin, BaseModel):
+class Character(BaseModel):
     account = ForeignKeyField(Account, related_name='characters')
     world = IntegerField(default=0)
     name = CharField(max_length=11)
@@ -24,10 +23,10 @@ class Character(MovableMixin, BaseModel):
     mp = IntegerField(default=5)
     maxhp = IntegerField(default=50)
     maxmp = IntegerField(default=5)
-    meso = IntegerField(default=0)
+    mesos = IntegerField(default=0)
     hp_mp_used = IntegerField(default=0)
     job = IntegerField(default=0)
-    skin_color = IntegerField(default=0)
+    skin = IntegerField(default=0)
     gender = IntegerField(default=0)
     fame = IntegerField(default=0)
     hair = IntegerField(default=0)
@@ -155,7 +154,7 @@ class Item(BaseModel):
     @classmethod
     def get_inventory_for(cls, character, inventory):
         return (cls
-                .select(cls.itemid, cls.slot)
+                .select()
                 .where((cls.inventory == inventory) &
                        (cls.character == character))
                 )

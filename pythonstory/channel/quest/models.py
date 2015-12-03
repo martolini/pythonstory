@@ -1,8 +1,9 @@
 from peewee import ForeignKeyField, IntegerField
 
-# from pythonstory.common.staticmodels import QuestData
+from pythonstory.common.staticmodels import QuestRewards
 from pythonstory.common.models import BaseModel
 from pythonstory.channel.models import Character
+from . import packets
 import time
 
 
@@ -18,6 +19,11 @@ class Quest(BaseModel):
                                   questid=questid
                                   )
         return quest
+
+    def get_rewards(self, start=True):
+        return QuestRewards.select().where(
+                  (QuestRewards.questid == self.questid) &
+                  (QuestRewards.quest_state == ('start' if start else 'end')))
 
     @classmethod
     def connect_data(cls, builder, character):
@@ -37,6 +43,16 @@ class Quest(BaseModel):
              .write_long(int(time.time()))
              )
 
-    @classmethod
-    def complete(cls, questid):
-        cls.update(status=1).where(cls.questid == questid).execute()
+    def start(self, npcid, client=None):
+        client.send(packets.accept_quest(self.questid, npcid))
+        client.send(packets.accept_quest_notice(self.questid))
+
+    def complete(self, client):
+        rewards = self.get_rewards(start=False)
+        for reward in rewards:
+            if reward.reward_type == 'exp':
+                client.gain_exp(reward.rewardid)
+            elif reward.reward_type == 'item':
+                client.receive_item(reward.rewardid, reward.quantity)
+        Quest.update(status=1).where(Quest.questid == self.questid).execute()
+        client.send(packets.complete_quest(self.questid))

@@ -1,46 +1,29 @@
-def parse_movement(packet):
-    foothold = 0
-    stance = 0
-    x = 0
-    y = 0
-    n_commands = packet.read_byte()
-    for i in xrange(n_commands):
-        mtype = packet.read_byte()
-        if mtype in (0, 15, 17):
-            x = packet.read_short()
-            y = packet.read_short()
-            packet.read_int()
-            foothold = packet.read_short()
-            stance = packet.read_byte()
-            packet.read_short()
-        elif mtype in (1, 2, 6, 12, 13, 16):
-            x = packet.read_short()
-            y = packet.read_short()
-            stance = packet.read_byte()
-            foothold = packet.read_short()
-        elif mtype in (3, 4, 7, 8, 9, 14):
-            packet.skip(9)
-        elif mtype == 10:
-            packet.read_byte()
-            print 'Should change equip, wtf'
-        elif mtype == 11:
-            x = packet.read_short()
-            y = packet.read_short()
-            foothold = packet.read_short()
-            stance = packet.read_byte()
-            packet.read_short()
-        elif mtype == 15:
-            x = packet.read_short()
-            y = packet.read_short()
-            packet.read_int()
-            packet.read_short()
-            foothold = packet.read_short()
-            stance = packet.read_byte()
-            packet.read_short()
-        elif mtype == 21:
-            packet.skip(3)
-        else:
-            print 'Unknown movement type {}'.format(mtype)
-            break
+from . import models as mapmodels
+from pythonstory.channel.mob import models as mobmodels
 
-    return x, y, foothold, stance
+
+def move_life(packet, client):
+    pass
+    # objectid = packet.read_int()
+    # moveid = packet.read_short()
+    # mob = mapmodels.Map.get(id=client.character.map).mobs[objectid]
+    # if mob is None:
+    #     return
+    # nibbles = packet.read_byte()
+    # activity = packet.read_byte()
+    # skillid = packet.read_byte()
+    # skill_level = packet.read_byte()
+    # option = packet.read_short()
+    # packet.skip(9)
+    # x, y, foothold, stance = parse_movement(packet)
+    # if activity >= 0:
+    #     activity = activity >> 1
+    # is_attack = activity in range(12,21)
+    # is_skill = activity in range(21,26)
+    # attackid = activity - 12 if is_attack else -1
+    # next_movement_could_be_skill = (nibbles & 0x0F) != 0
+    # unk = (nibbles & 0xF0) != 0
+    # next_skill = 0
+    # next_skill_level = 0
+    # if is_attack:
+    #     mob.get_attack(attackid)

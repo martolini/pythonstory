@@ -214,3 +214,78 @@ class QuestData(StaticModel):
 
     class Meta:
         db_table = 'quest_data'
+
+
+class MobAttacks(StaticModel):
+    attack_type = TextField(null=True)
+    attackid = IntegerField()
+    element = TextField(null=True)
+    flags = TextField()
+    level = IntegerField(db_column='mob_skill_level')
+    mob_skillid = IntegerField(db_column='mob_skillid')
+    mobid = IntegerField()
+    mp_consume = IntegerField(db_column='mp_cost')
+    mp_cost = IntegerField()
+
+    class Meta:
+        db_table = 'mob_attacks'
+        primary_key = CompositeKey('attackid', 'mobid')
+
+
+class MobData(StaticModel):
+    mobid = PrimaryKeyField()
+    acc = IntegerField(db_column='accuracy')
+    avoid = IntegerField(db_column='avoidability')
+    carnival_points = IntegerField()
+    chase_speed = IntegerField()
+    damaged_by_mob_only = IntegerField()
+    damaged_by_skill_only = IntegerField()
+    remove_after = IntegerField(db_column='death_after')
+    buff = IntegerField(db_column='death_buff')
+    exp = IntegerField(db_column='experience')
+    explode_hp = IntegerField()
+    fire_modifier = TextField()
+    fixed_damage = IntegerField()
+    flags = TextField()
+    holy_modifier = TextField()
+    hp = IntegerField()
+    hp_bar_bg_color = IntegerField()
+    hp_bar_color = IntegerField()
+    hp_recovery = IntegerField()
+    ice_modifier = TextField()
+    knockback = IntegerField()
+    lightning_modifier = TextField()
+    link = IntegerField()
+    matk = IntegerField(db_column='magical_attack')
+    mdef = IntegerField(db_column='magical_defense')
+    level = IntegerField(db_column='mob_level')
+    mp = IntegerField()
+    mp_recovery = IntegerField()
+    nonelemental_modifier = TextField()
+    physical_attack = IntegerField()
+    physical_defense = IntegerField()
+    poison_modifier = TextField()
+    speed = IntegerField()
+    summon_type = IntegerField()
+    traction = FloatField()
+
+    class Meta:
+        db_table = 'mob_data'
+
+
+class QuestRewards(StaticModel):
+    flags = TextField()
+    gender = TextField()
+    id = BigIntegerField(primary_key=True)
+    job = IntegerField()
+    job_tracks = TextField()
+    master_level = IntegerField()
+    prop = IntegerField()
+    quantity = IntegerField()
+    quest_state = TextField()
+    questid = IntegerField(index=True)
+    reward_type = TextField()
+    rewardid = IntegerField()
+
+    class Meta:
+        db_table = 'quest_rewards'

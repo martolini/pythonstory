@@ -2,22 +2,27 @@ from pythonstory.common.staticmodels import (
                         MapData, MapSeats, MapPortals, MapLife
                         )
 from pythonstory.common.helperclasses import Point, Rect
-from . import packets as mappackets
 import pythonstory.channel.npc.packets as npcpackets
+from pythonstory.channel.mob import (
+                                     models as mobmodels,
+                                     packets as mobpackets
+                                     )
+import threading
 
 
 class Map(object):
     cache = {c: {} for c in xrange(5)}
 
-    def __init__(self, mapid):
+    def __init__(self, mapid, channel):
         self.npcid = 200
         self.mobid = 500
         self.id = mapid
+        self.channel = channel
         self.seats = {}
         self.clients = set()
         self.portals = {}
-        self.npc = {}
-        self.mob = {}
+        self.npcs = {}
+        self.mobs = {}
         self.reactor = {}
 
     @classmethod
@@ -25,7 +30,7 @@ class Map(object):
         if mapid in cls.cache[channel]:
             return cls.cache[channel][mapid]
 
-        mmap = Map(mapid)
+        mmap = Map(mapid, channel)
         mmap.load_data(MapData.get(MapData.mapid == mmap.id))
         mmap.load_seats(MapSeats.select().where(MapSeats.mapid == mmap.id))
         for portal in MapPortals.select(
@@ -38,7 +43,6 @@ class Map(object):
     def add_client(self, client):
         self.clients.add(client)
         self.show_objects(client)
-        self.spawn_mobs(client)
 
     def remove_client(self, client):
         self.clients.remove(client)
@@ -78,12 +82,12 @@ class Map(object):
         for life in data:
             storage = None
             if life.life_type == 'mob':
-                storage = self.mob
-                life.id = self.mobid
+                mob = mobmodels.Mob.from_life(self.mobid, life, self)
                 self.mobid += 1
+                self.mobs[mob.objid] = mob
             elif life.life_type == 'npc':
                 self.npcid += 1
-                storage = self.npc
+                storage = self.npcs
                 life.id = self.npcid
             if storage is not None:
                 storage[life.id] = life
@@ -92,12 +96,20 @@ class Map(object):
         for client in self.clients:
             client.send(packet)
 
-    def spawn_mobs(self, client):
-        for mob in self.mob.values():
-            client.send(mappackets.spawn_mob(mob))
-            client.send(mappackets.control_mob(mob))
-
     def show_objects(self, client):
-        for npc in self.npc.values():
+        for npc in self.npcs.values():
             client.send(npcpackets.spawn_npc(npc))
             client.send(npcpackets.control_npc(npc))
+        for mob in self.mobs.values():
+            if mob.spawned:
+                mob.show_for(client)
+
+    def mob_died(self, objid):
+        self.send(mobpackets.kill_mob(objid))
+        mob = self.mobs[objid]
+        threading.Timer(5.0, self.respawn_mob, [mob]).start()
+
+    def respawn_mob(self, mob):
+        mob.respawn()
+        for client in self.clients:
+            mob.show_for(client)

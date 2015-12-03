@@ -1,3 +1,5 @@
+
+
 class BasePacketProcessor(object):
     """
     Abstract packet processor, handles the packet
@@ -6,7 +8,6 @@ class BasePacketProcessor(object):
 
     handlers = {}  # {OPCODE: function}
     ignored_opcodes = set()
-    counter = 0
 
     @classmethod
     def handle_packet(cls, packet, client):

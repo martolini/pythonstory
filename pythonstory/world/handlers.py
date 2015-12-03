@@ -7,8 +7,7 @@ from ..common import enums
 def login(packet, client):
     name = packet.read_maplestring()
     pwd = packet.read_maplestring()
-    # account = Account.login(name, pwd)
-    account = Account.get()
+    account = Account.login(name, pwd)
     if account is not None:
         client.account = account
         packet = worldpackets.auth_success(client)
@@ -56,7 +55,7 @@ def create_character(packet, client):
     job = packet.read_int()
     character.face = packet.read_int()
     character.hair = packet.read_int() + packet.read_int()
-    character.skin_color = packet.read_int()
+    character.skin = packet.read_int()
     top = packet.read_int()
     bottom = packet.read_int()
     shoes = packet.read_int()
@@ -70,7 +69,7 @@ def create_character(packet, client):
         beginnerbook = 4161047
     elif job == 1:
         character.job = enums.MapleJob.BEGINNER
-        character.map = 10000000
+        character.map = 10000
         beginnerbook = 4161001
     elif job == 2:
         character.job = enums.MapleJob.LEGEND

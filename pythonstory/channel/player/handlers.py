@@ -1,14 +1,13 @@
-from ..map import handlers as maphandlers
 from ..map import models as mapmodels
 from ..models import Keymap
 from .. import commands
+from pythonstory.channel.skill.utils import parse_attack
+import packets
 
 
 def move_player(packet, client):
     packet.skip(9)
-    x, y, foothold, stance = maphandlers.parse_movement(packet)
-    # client.character.move(x, y, foothold, stance)
-    # client.send_map() # SOME PACKET, who cares as i'm the only one lol
+    client.handle_movement(packet)
 
 
 def change_map(packet, client):
@@ -16,7 +15,7 @@ def change_map(packet, client):
         # CASH SHOP
         return
     packet.read_byte()
-    packet.read_int()  # Target map, use for something?
+    targetmap = packet.read_int()  # Target map, use for something?
     startwp = packet.read_maplestring()
     currentmap = mapmodels.Map.get(
         mapid=client.character.map,
@@ -55,3 +54,17 @@ def handle_chat(packet, client):
             func(client, *args)
         except AttributeError:
             print "No command {}".format(command)
+
+
+def meele_attack(packet, client):
+    attack = parse_attack(packet, client.character)
+    curmap = mapmodels.Map.get(client.character.map, client.channel)
+    for mobid, damages in attack.damages.iteritems():
+        mob = curmap.mobs[mobid]
+        total_damage = sum(damages)
+        connected_hits = len(damages)
+        mob.apply_damage(client, total_damage)
+
+
+def change_map_special(packet, client):
+    client.send(packets.enable_actions())

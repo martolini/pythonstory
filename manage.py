@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import pythonstory
 from peewee import IntegrityError
@@ -22,14 +24,13 @@ class Manager(object):
             print e
 
     def syncdb(self):
-        db = pythonstory.common.settings.DATABASES['default']
         models = pythonstory.common.models.BaseModel.__subclasses__()
         for model in models:
             print 'Creating table {} for model {}'.format(
                     model._meta.db_table,
                     model.__name__)
             try:
-                db.create_table(model)
+                model.create_table()
             except Exception as e:
                 print e
             print '.' * 20

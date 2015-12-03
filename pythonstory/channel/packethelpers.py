@@ -12,7 +12,7 @@ def add_char_info(builder, character):
     (builder
      .write(0)  # No buddies :(
      .write(0)  # No linked name
-     .write_int(character.meso)
+     .write_int(character.mesos)
      )
     add_inventor_info(builder, character)
     add_skill_info(builder, character)

@@ -16,7 +16,7 @@ def add_char_stats(builder, character):
      .write_int(character.id)
      .write_string_rightpad(character.name, '\0', 13)
      .write(character.gender)
-     .write(character.skin_color)
+     .write(character.skin)
      .write_int(character.face)
      .write_int(character.hair)
      )

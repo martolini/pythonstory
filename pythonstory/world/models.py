@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class Account(BaseModel):
-    name = CharField(unique=True, max_length=13)
+    name = CharField(unique=True)
     password = CharField(max_length=128)
     pin = CharField(max_length=10, null=True)
     pic = CharField(max_length=26, null=True)

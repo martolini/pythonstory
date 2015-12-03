@@ -4,11 +4,13 @@ from . import handlers as channelhandlers
 from .player import handlers as playerhandlers
 from .quest import handlers as questhandlers
 from .npc import handlers as npchandlers
+from .mob import handlers as mobhandlers
 
 
 class ChannelPacketProcessor(processor.BasePacketProcessor):
     ignored_opcodes = (
-        recvopcodes.CHANGE_MAP_SPECIAL,
+        recvopcodes.PLAYER_UPDATE,
+        recvopcodes.TEMP_SKILL
     )
 
     handlers = {
@@ -19,5 +21,8 @@ class ChannelPacketProcessor(processor.BasePacketProcessor):
         recvopcodes.CHANGE_KEYMAP: playerhandlers.change_keymap,
         recvopcodes.GENERAL_CHAT: playerhandlers.handle_chat,
         recvopcodes.QUEST_ACTION: questhandlers.quest_action,
-        recvopcodes.NPC_ACTION: npchandlers.npc_action
+        recvopcodes.NPC_ACTION: npchandlers.npc_action,
+        recvopcodes.CLOSE_RANGE_ATTACK: playerhandlers.meele_attack,
+        recvopcodes.MOVE_LIFE: mobhandlers.move_mob,
+        recvopcodes.CHANGE_MAP_SPECIAL: playerhandlers.change_map_special,
     }
